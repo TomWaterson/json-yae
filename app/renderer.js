@@ -2,6 +2,7 @@ const { remote, shell } = require("electron");
 const fs = require("fs");
 const path = require("path");
 const Prism = require("prismjs");
+const flyd = require("flyd");
 const validator = require("./validator/index.js");
 
 const mainProcess = remote.require("./main.js");
@@ -17,8 +18,6 @@ const btnDefaultApplication = document.querySelector("#btnDefaultApplication");
 const btnValidateSchema = document.querySelector("#btnValidateSchema");
 const inputSection = document.querySelector("#inputSection");
 const inputJSON = document.querySelector("#inputJSON");
-// Streams
-
 
 let state = {
     fileName: null,
@@ -27,8 +26,10 @@ let state = {
     titleFilePath: null
 };
 
-// Render updates main renderer and this process
-// { state } -> void
+// const updateState = (x) => Object.assign({}, state, x);
+// const stateStream = flyd.stream(state);
+
+// Remove state object when streams are complete
 const render = (state) => {
     let title = "JSON-YAE";
 
@@ -49,18 +50,10 @@ const render = (state) => {
     Prism.highlightAll();
 };
 
-btnValidateSchema.addEventListener("click", () => {
-    validator.schema.validateSchema(null, inputJSON.value);
-});
-
-inputJSON.addEventListener("input", (event) => {
-    state.isEdited = event.target.value === state.initialContent ? false : true;
-    // Returns a highlighted HTML string
-    const html = Prism.highlight(event.target.value, Prism.languages.javascript, "javascript");
-    document.querySelector("#outputJSON").innerHTML = html;
-
-    render(state);
-});
+// Drag helpers
+const getDraggedFile = (event) => event.dataTransfer.items[0];
+const getDroppedFile = (event) => event.dataTransfer.files[0];
+const isFileTypeSupported = (file) => ["text/plain", "application/json", "text/json"].includes(file.type);
 
 const saveFile = (file, content) => {
     if (!file) {
@@ -81,7 +74,7 @@ const saveFile = (file, content) => {
         fs.writeFileSync(file, content);
     }
 };
-
+// Click events
 btnShow.addEventListener("click", () => {
     if (!state.titleFilePath) {
         alert("Error showing button, there is no file path");
@@ -110,7 +103,7 @@ btnOpen.addEventListener("click", () => {
                 if (err) {
                     return null;
                 }
-                inputJSON.value = data;
+                inputJSONStream(data);
                 state.initialContent = data;
                 state.titleFilePath = file;
                 render(state);
@@ -120,44 +113,89 @@ btnOpen.addEventListener("click", () => {
         });
 });
 
-document.addEventListener("dragstart", event => event.preventDefault());
-document.addEventListener("dragover", event => event.preventDefault());
-document.addEventListener("dragleave", event => event.preventDefault());
-document.addEventListener("drop", event => event.preventDefault());
+const inputJSONStream = flyd.stream();
+const inputSectionDragLeaveStream = flyd.stream();
+const inputSectionDropStream = flyd.stream();
+const inputSectionDragOverStream = flyd.stream();
 
-// Drag helpers
-const getDraggedFile = (event) => event.dataTransfer.items[0];
-const getDroppedFile = (event) => event.dataTransfer.files[0];
-const isFileTypeSupported = (file) => ["text/plain", "application/json", "text/json"].includes(file.type);
+const isSchemaValid = flyd.map((x) => validator.schema.validateSchema(null, x), inputJSONStream);
+const isJSONValid = flyd.map((x) => validator.input.validate(x), inputJSONStream);
 
-inputSection.addEventListener("dragover", (event) => {
-    const file = getDraggedFile(event);
-    if (isFileTypeSupported(file)) {
-        errors.classList.add("hidden");
-    } else {
-        errors.classList.remove("hidden");
-    }
-});
-
-// Streams should remove this
-btnValidate.addEventListener("click", () => {
-    let data = document.querySelector("#inputJSON").value;
-    console.log(data);
-    console.log(validator.input.validate(data));
-});
-
-inputSection.addEventListener("dragleave", () => {
-    errors.classList.add("hidden");
-});
-
-inputSection.addEventListener("drop", (event) => {
+// TODO: improve readability with fn composition
+const inputSectionDropStreamContent = flyd.map((event) => {
     const file = getDroppedFile(event);
 
     if (isFileTypeSupported(file)) {
         const content = fs.readFileSync(file.path).toString();
-        inputJSON.value = content;
+        return content;
+    } else {
+        return null;
+    }
+}, inputSectionDropStream);
+
+const dragOverFileTypeSupported = flyd.map((event) => {
+    const file = getDraggedFile(event);
+    return isFileTypeSupported(file);
+}, inputSectionDragOverStream);
+
+// Drag Events
+document.addEventListener("dragstart", event => event.preventDefault());
+document.addEventListener("dragover", event => event.preventDefault());
+document.addEventListener("dragleave", event => event.preventDefault());
+document.addEventListener("drop", event => event.preventDefault());
+inputSection.addEventListener("dragleave", inputSectionDragLeaveStream);
+inputSection.addEventListener("drop", inputSectionDropStream);
+inputSection.addEventListener("dragover", inputSectionDragOverStream);
+inputJSON.addEventListener("input", (e) => inputJSONStream(e.target.value));
+
+flyd.on((supportedFileType) => {
+    if (supportedFileType) {
+        errors.classList.add("hidden");
+    } else {
+        errors.classList.remove("hidden");
+    }
+}, dragOverFileTypeSupported);
+
+flyd.on(() => {
+    errors.classList.add("hidden");
+}, inputSectionDragLeaveStream);
+
+flyd.on((val) => {
+    if (val !== null) {
+        inputJSONStream(val);
     } else {
         shell.beep();
     }
     inputSection.classList.remove("hidden");
-});
+}, inputSectionDropStreamContent);
+
+flyd.on((isValid) => {
+    if (isValid !== true) {
+        btnValidateSchema.disabled = "disabled";
+    } else {
+        btnValidateSchema.disabled = false;
+    }
+}, isSchemaValid);
+
+flyd.on((isValid) => {
+    if (!isValid) {
+        btnValidate.disabled = "disabled";
+    } else {
+        btnValidate.disabled = false;
+    }
+}, isJSONValid);
+
+// Side-effects
+flyd.on((value) => {
+    state.isEdited = value === state.initialContent ? false : true;
+
+    // Returns a highlighted HTML string
+    const html = value ? Prism.highlight(value, Prism.languages.javascript, "javascript") : "";
+    document.querySelector("#outputJSON").innerHTML = html;
+
+    render(state);
+}, inputJSONStream);
+
+flyd.on((data) => {
+    inputJSON.value = data;
+}, inputJSONStream);

@@ -23,7 +23,7 @@ const validateSchema = (schema, data) => {
         if (!valid) {
             return validate.errors;
         } else {
-            return [];
+            return true;
         }
     } catch (e) {
         return false;
