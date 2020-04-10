@@ -8,13 +8,38 @@ html {
 }
 /* Button Component */
 .btn {
-    @apply bg-blue-500 text-white font-bold py-2 px-4 rounded;
+    @apply font-bold py-1 px-2 rounded;
 }
 
-.btn:hover {
-    @apply bg-blue-700
+.btn-gray {
+    @apply bg-transparent text-gray-300;
+}
+
+.btn-red {
+    @apply bg-red-500 text-red-700 font-bold py-2 px-4 rounded inline-flex items-center;
+}
+
+.btn-gray:hover {
+    @apply bg-gray-700 text-white;
 }
 
 .btn:disabled {
-    @apply bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed;
+    @apply opacity-50 cursor-not-allowed;
+}
+
+.menu {
+    background-color: #333;
+}
+
+.tab {
+    @apply text-gray-600 py-4 px-6 block;
+}
+.tab:hover {
+    @apply text-blue-500;
+}
+.tab:focus {
+    @apply outline-none;
+}
+.tab--active {
+    @apply text-blue-500 border-b-2 font-medium border-blue-500;
 }
