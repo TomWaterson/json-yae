@@ -16,26 +16,6 @@ const ComponentMenu = (application, dependantStreams) => {
         const isEditedStream = flyd.stream(false);
         const initialContentStream = flyd.stream("");
 
-        const saveFile = (file, content) => {
-            if (!file) {
-                mainProcess.showSaveDialog().then((res) => {
-                    if (!res.canceled) {
-                        titleFilePathStream(res.filePath);
-                        fs.writeFileSync(res.filePath, content);
-                        inputJSONStream(content);
-                    }
-                }).catch(() => {
-                    return null;
-                });
-            }
-
-            if(!file) {
-                return;
-            } else {
-                fs.writeFileSync(file, content);
-            }
-        };
-
         const btnShow = document.querySelector("#btnShow");
         const btnOpen = document.querySelector("#btnOpen");
         const btnSave = document.querySelector("#btnSave");
@@ -56,6 +36,26 @@ const ComponentMenu = (application, dependantStreams) => {
         const disableSaveButtonStream = flyd.combine((inputJSON, initialContent) => {
             return inputJSON() !== initialContent();
         }, [inputJSONStream, initialContentStream]);
+
+        const saveFile = (file, content) => {
+            if (!file) {
+                mainProcess.showSaveDialog().then((res) => {
+                    if (!res.canceled) {
+                        titleFilePathStream(res.filePath);
+                        fs.writeFileSync(res.filePath, content);
+                        inputJSONStream(content);
+                    }
+                }).catch(() => {
+                    return null;
+                });
+            }
+
+            if(!file) {
+                return;
+            } else {
+                fs.writeFileSync(file, content);
+            }
+        };
 
         flyd.on((disableSaveButton) => {
             btnSave.disabled = disableSaveButton ? false : "disabled";

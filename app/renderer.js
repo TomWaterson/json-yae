@@ -2,48 +2,52 @@ const { remote, shell } = require("electron");
 const Prism = require("prismjs");
 const flyd = require("flyd");
 const path = require("path");
-const validator = require("./validator/index.js");
 const { ComponentMenu } = require("./components/menu/index.js");
 const { ComponentDragAndDrop } = require("./components/drag-and-drop/index.js");
+const { ComponentFooter } = require("./components/footer/index.js");
+const { ComponentTabs } = require("./components/tabs/index.js");
 
 const mainProcess = remote.require("./main.js");
 const currentWindow = remote.getCurrentWindow();
-
 // DOM
-const btnValidate = document.querySelector("#btnValidate");
-const btnValidateSchema = document.querySelector("#btnValidateSchema");
 const inputJSON = document.querySelector("#inputJSON");
-
+const listJSON = document.querySelector("#listJSON");
 // Streams
 const applicationTitleStream = flyd.stream("JSON-YAE");
 const inputJSONStream = flyd.stream();
+const listJSONStream = flyd.stream();
 
+ComponentDragAndDrop({ shell }, { inputJSONStream });
 // Components
 ComponentMenu({ mainProcess, shell, currentWindow }, { applicationTitleStream, inputJSONStream });
 ComponentDragAndDrop({ shell }, { inputJSONStream });
+ComponentFooter({}, { inputJSONStream });
+ComponentTabs({}, { inputJSONStream });
 
-const isSchemaValid = flyd.map((x) => validator.schema.validateSchema(null, x), inputJSONStream);
-const isJSONValid = flyd.map((x) => validator.input.validate(x), inputJSONStream);
-
+// Listeners
 inputJSON.addEventListener("input", (e) => inputJSONStream(e.target.value));
-
-flyd.on((isValid) => {
-    if (isValid !== true) {
-        btnValidateSchema.disabled = "disabled";
-    } else {
-        btnValidateSchema.disabled = false;
-    }
-}, isSchemaValid);
-
-flyd.on((isValid) => {
-    if (!isValid) {
-        btnValidate.disabled = "disabled";
-    } else {
-        btnValidate.disabled = false;
-    }
-}, isJSONValid);
-
+listJSON.addEventListener("click", listJSONStream);
 // Side-effects
+flyd.on(event => {
+    let el = event.target;
+    if (el.classList) {
+        let classes = el.classList.value.split(" ");
+
+        if (classes.includes("collapsible")) {
+            let parentEl = el.parentElement;
+            let toHide = parentEl.querySelector(".nested");
+
+            if (toHide) {
+                if (toHide.classList.value.split(" ").includes("hidden")) {
+                    toHide.classList.remove("hidden");
+                } else {
+                    toHide.classList.add("hidden");
+                }
+            }
+        }
+    }
+}, listJSONStream);
+
 flyd.on((value) => {
     // Returns a highlighted HTML string
     const html = value ? Prism.highlight(value, Prism.languages.javascript, "javascript") : "";
