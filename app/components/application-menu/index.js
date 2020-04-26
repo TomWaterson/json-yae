@@ -2,7 +2,7 @@ const fs = require("fs");
 const flyd = require("flyd");
 const path = require("path");
 
-const ComponentMenu = (application, dependantStreams) => {
+const ComponentApplicationMenu = (application, dependantStreams) => {
     let {
         inputJSONStream,
         applicationTitleStream
@@ -12,6 +12,8 @@ const ComponentMenu = (application, dependantStreams) => {
         shell,
         currentWindow
     } = application;
+
+    // TODO: Split into better componentry
     document.addEventListener("DOMContentLoaded", function() {
         const isEditedStream = flyd.stream(false);
         const initialContentStream = flyd.stream("");
@@ -74,8 +76,13 @@ const ComponentMenu = (application, dependantStreams) => {
         flyd.on(() => {
             saveFile(titleFilePathStream(), inputJSONStream());
             initialContentStream(inputJSONStream());
-            currentWindow.setRepresentedFilename(titleFilePathStream());
-            currentWindow.setTitle(path.basename(titleFilePathStream()));
+            try {
+                currentWindow.setRepresentedFilename(titleFilePathStream());
+                currentWindow.setTitle(path.basename(titleFilePathStream()));
+            } catch (e) {
+                // TODO add proper logging
+                return e;
+            }
         }, buttonSaveStream);
 
         flyd.on(() => {
@@ -111,4 +118,4 @@ const ComponentMenu = (application, dependantStreams) => {
     });
 };
 
-module.exports = { ComponentMenu };
+module.exports = { ComponentApplicationMenu };
