@@ -1,4 +1,3 @@
-
 const toList = (json) => {
     let result = "";
     for (const property in json) {
