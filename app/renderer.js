@@ -17,20 +17,21 @@ const listJSON = document.querySelector("#listJSON");
 // Streams
 const applicationTitleStream = flyd.stream("JSON-YAE");
 const inputJSONStream = flyd.stream();
+const schemaJSONStream = flyd.stream(null);
 
-const isSchemaValidStream = flyd.map((x) => validator.schema.validateSchema(null, x), inputJSONStream);
+const isSchemaValidStream = flyd.map((x) => validator.schema.validateSchema(schemaJSONStream(), x), inputJSONStream);
 const isJSONValidStream = flyd.map((x) => validator.input.validate(x), inputJSONStream);
 
 const listJSONStream = flyd.stream();
 
 // Components
 ComponentDragAndDrop({ shell }, { inputJSONStream });
-ComponentApplicationMenu({ mainProcess, shell, currentWindow }, { applicationTitleStream, inputJSONStream });
+ComponentApplicationMenu({ mainProcess, shell, currentWindow }, { applicationTitleStream, inputJSONStream, schemaJSONStream });
 ComponentDragAndDrop({ shell }, { inputJSONStream });
-ComponentSchemaButtons({}, { inputJSONStream, isSchemaValidStream, isJSONValidStream });
+ComponentSchemaButtons({}, { inputJSONStream, schemaJSONStream, isSchemaValidStream, isJSONValidStream });
 ComponentTabs({}, { inputJSONStream });
 ComponentTabs({}, { inputJSONStream });
-ComponentSchemaErrors({}, { isSchemaValidStream });
+ComponentSchemaErrors({}, { schemaJSONStream, isSchemaValidStream });
 // Listeners
 inputJSON.addEventListener("input", (e) => inputJSONStream(e.target.value));
 listJSON.addEventListener("click", listJSONStream);

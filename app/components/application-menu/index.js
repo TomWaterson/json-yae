@@ -5,6 +5,7 @@ const path = require("path");
 const ComponentApplicationMenu = (application, dependantStreams) => {
     let {
         inputJSONStream,
+        schemaJSONStream,
         applicationTitleStream
     } = dependantStreams || {};
     let {
@@ -22,17 +23,20 @@ const ComponentApplicationMenu = (application, dependantStreams) => {
         const btnOpen = document.querySelector("#btnOpen");
         const btnSave = document.querySelector("#btnSave");
         const btnDefaultApplication = document.querySelector("#btnDefaultApplication");
+        const btnLoadSchema = document.querySelector("#btnLoadSchema");
 
         const titleFilePathStream = flyd.stream(null);
         const buttonShowStream = flyd.stream();
         const buttonSaveStream = flyd.stream();
         const openFilePressed = flyd.stream();
         const buttonDefaultApplicationStream = flyd.stream();
+        const btnLoadSchemaStream = flyd.stream();
 
         btnShow.addEventListener("click", buttonShowStream);
         btnSave.addEventListener("click", buttonSaveStream);
         btnOpen.addEventListener("click", openFilePressed);
         btnDefaultApplication.addEventListener("click", buttonDefaultApplicationStream);
+        btnLoadSchema.addEventListener("click", btnLoadSchemaStream);
 
         // Because it is curried the consumer can pass in the data
         const disableSaveButtonStream = flyd.combine((inputJSON, initialContent) => {
@@ -63,7 +67,6 @@ const ComponentApplicationMenu = (application, dependantStreams) => {
             btnSave.disabled = disableSaveButton ? false : "disabled";
             currentWindow.setDocumentEdited(disableSaveButton);
         }, disableSaveButtonStream);
-
 
         flyd.on(() => {
             if (!titleFilePathStream()) {
@@ -97,6 +100,21 @@ const ComponentApplicationMenu = (application, dependantStreams) => {
                         if (err) {
                             return null;
                         }
+                        schemaJSONStream(data);
+                    });
+                }).catch(() => {
+                    console.log("error retrieving schema");
+                });
+        }, btnLoadSchemaStream);
+
+        flyd.on(() => {
+            mainProcess.getFileFromUser()
+                .then(res => {
+                    const file = res.filePaths[0];
+                    fs.readFile(file, "utf8", (err, data) => {
+                        if (err) {
+                            return null;
+                        }
                         inputJSONStream(data);
                         initialContentStream(data);
                         titleFilePathStream(file);
@@ -114,6 +132,7 @@ const ComponentApplicationMenu = (application, dependantStreams) => {
             }
 
             btnShow.disabled = titleFilePath ? false : "disabled";
+            btnDefaultApplication.disabled = titleFilePath ? false : "disabled";
         }, titleFilePathStream);
     });
 };
