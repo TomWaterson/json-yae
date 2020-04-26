@@ -11,6 +11,10 @@ html {
     @apply font-bold py-1 px-2 rounded;
 }
 
+.btn-icon {
+    @apply inline-flex items-center;
+}
+
 .btn-gray {
     @apply bg-transparent text-gray-300;
 }
