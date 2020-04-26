@@ -114,6 +114,7 @@ const ComponentApplicationMenu = (application, dependantStreams) => {
             }
 
             btnShow.disabled = titleFilePath ? false : "disabled";
+            btnDefaultApplication.disabled = titleFilePath ? false : "disabled";
         }, titleFilePathStream);
     });
 };
