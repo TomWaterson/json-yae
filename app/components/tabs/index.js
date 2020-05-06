@@ -6,39 +6,38 @@ const ComponentTabs = (_, dependantStreams) => {
         inputJSONStream
     } = dependantStreams || {};
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const textViewStream = flyd.stream();
-        const listViewStream = flyd.stream();
-        const htmlStream = flyd.map(toHTML, inputJSONStream);
-        const btnTextView = document.querySelector("#btnTextView");
-        const btnListView = document.querySelector("#btnListView");
-        const inputJSON = document.querySelector("#inputJSON");
-        const listJSON = document.querySelector("#listJSON");
+    const textViewStream = flyd.stream();
+    const listViewStream = flyd.stream();
+    const htmlStream = flyd.map(toHTML, inputJSONStream);
 
-        btnListView.addEventListener("click", listViewStream);
-        btnTextView.addEventListener("click", textViewStream);
+    const btnTextView = document.querySelector("#btnTextView");
+    const btnListView = document.querySelector("#btnListView");
+    const inputJSON = document.querySelector("#inputJSON");
+    const listJSON = document.querySelector("#listJSON");
 
-        flyd.on(() => {
-            // set tab
-            btnTextView.classList.add("tab--active");
-            btnListView.classList.remove("tab--active");
+    btnListView.addEventListener("click", listViewStream);
+    btnTextView.addEventListener("click", textViewStream);
 
-            // Set view
-            inputJSON.classList.remove("hidden");
-            listJSON.classList.add("hidden");
-        }, textViewStream);
+    flyd.on(() => {
+        // set tab
+        btnTextView.classList.add("tab--active");
+        btnListView.classList.remove("tab--active");
 
-        flyd.on(() => {
-            // set tab
-            btnListView.classList.add("tab--active");
-            btnTextView.classList.remove("tab--active");
+        // Set view
+        inputJSON.classList.remove("hidden");
+        listJSON.classList.add("hidden");
+    }, textViewStream);
 
-            // Set view
-            inputJSON.classList.add("hidden");
-            listJSON.classList.remove("hidden");
-            listJSON.innerHTML = htmlStream();
-        }, listViewStream);
-    });
+    flyd.on(() => {
+        // set tab
+        btnListView.classList.add("tab--active");
+        btnTextView.classList.remove("tab--active");
+
+        // Set view
+        inputJSON.classList.add("hidden");
+        listJSON.classList.remove("hidden");
+        listJSON.innerHTML = htmlStream();
+    }, listViewStream);
 };
 
 module.exports = { ComponentTabs };
