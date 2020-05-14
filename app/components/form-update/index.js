@@ -5,37 +5,14 @@ const _ = require("../../lib/index.js");
 const FormUpdate = (__, dependantStreams) => {
     let { updateJSONStream, listJSONStream, inputJSONStream, objPathStream } = dependantStreams;
 
-    function setValue(object, path, value) {
-        var fullPath = path.split("."),
-            way = fullPath.slice(),
-            last = way.pop();
-
-        way.reduce(function (r, a) {
-            return r[a] = r[a] || {};
-        }, object)[last] = value;
-
-        return object;
-    }
-
-    function deepCopy(sourceObject, destinationObject) {
-        for (const key in sourceObject) {
-            if(typeof sourceObject[key] != "object") {
-                destinationObject[key] = sourceObject[key];
-            } else {
-                destinationObject[key] = {};
-                deepCopy(sourceObject[key], destinationObject[key]);
-            }
-        }
-        return destinationObject;
-    }
-
     flyd.on((e) => {
         e.preventDefault();
 
         let value = document.querySelector("#json-value").value;
         let jsonObject = JSON.parse(inputJSONStream());
+        let jsonCopy = _.deepCopy(jsonObject, {});
         let pathToSet = objPathStream();
-        let result = setValue(deepCopy(jsonObject, {}), pathToSet, value);
+        let result = _.setValue(jsonCopy, pathToSet, value);
 
         inputJSONStream(JSON.stringify(result, null, 4)); // update with new object
     }, updateJSONStream); // update json from click.
