@@ -1,7 +1,11 @@
 const compose = require("./compose.js");
 const path = require("./path.js");
+const setValue = require("./setValue.js");
+const deepCopy = require("./deepCopy.js");
 
-module.exports = {
+module.exports = Object.freeze({
     compose,
-    path
-};
+    path,
+    setValue,
+    deepCopy
+});
