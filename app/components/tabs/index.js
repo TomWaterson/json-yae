@@ -29,6 +29,10 @@ const ComponentTabs = (_, dependantStreams) => {
     }, textViewStream);
 
     flyd.on(() => {
+        listJSON.innerHTML = htmlStream();
+    }, htmlStream);
+
+    flyd.on(() => {
         // set tab
         btnListView.classList.add("tab--active");
         btnTextView.classList.remove("tab--active");
