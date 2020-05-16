@@ -8,10 +8,9 @@ const ComponentApplicationTitle = (application, dependantStreams) => {
 
     const {
         applicationTitleStream,
-        titleFilePathStream
+        titleFilePathStream,
+        isEditedStream
     } = dependantStreams || {};
-
-    const isEditedStream = flyd.stream(false);
 
     flyd.on((titleFilePath) => {
         if (titleFilePath) {

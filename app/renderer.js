@@ -30,6 +30,7 @@ const updateJSONStream = flyd.stream();
 const objPathStream = flyd.stream();
 const listJSONStream = flyd.stream();
 const openFilePressed = flyd.stream();
+const isEditedStream = flyd.stream(false);
 const btnLoadSchemaStream = flyd.stream();
 const schemaJSONStream = flyd.stream(null);
 const titleFilePathStream = flyd.stream(null);
@@ -44,6 +45,7 @@ ComponentDragAndDrop({ shell }, {
 });
 ComponentApplicationTitle({ shell, currentWindow }, {
     applicationTitleStream,
+    isEditedStream,
     titleFilePathStream
 });
 ComponentDragAndDrop({ shell }, {
@@ -90,7 +92,7 @@ BtnSaveFile({ currentWindow }, {
     titleFilePathStream
 });
 BtnShowInDefaultApplication({ shell }, {
-    titleFilePathStream 
+    titleFilePathStream
 });
 // Listeners
 inputJSON.addEventListener("input", (e) => inputJSONStream(e.target.value));
