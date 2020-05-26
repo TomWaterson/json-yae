@@ -10,6 +10,11 @@ const FormUpdate = (__, dependantStreams) => {
         objPathStream
     } = dependantStreams;
 
+    const updateJSON = document.querySelector("#update-json");
+    const listJSON = document.querySelector("#listJSON");
+    updateJSON.addEventListener("click", updateJSONStream);
+    listJSON.addEventListener("click", listJSONStream);
+
     const convertValue = (type, value) => {
         switch (type) {
         case "string":

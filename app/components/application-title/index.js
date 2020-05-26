@@ -12,13 +12,20 @@ const ComponentApplicationTitle = (application, dependantStreams) => {
         isEditedStream
     } = dependantStreams || {};
 
-    flyd.on((titleFilePath) => {
-        if (titleFilePath) {
-            titleFilePath = (`${titleFilePath} - ${applicationTitleStream()} ${isEditedStream() ? "(* Edited)" : ""}`);
+    const isEditable = flyd.merge(titleFilePathStream, isEditedStream);
+
+    flyd.on(() => {
+        if (titleFilePathStream()) {
+            let edited = isEditedStream() ? "(* Edited)" : "";
+            let titleFilePath = (`${titleFilePathStream()} - ${applicationTitleStream()} ${edited}`);
             currentWindow.setRepresentedFilename(titleFilePath);
             currentWindow.setTitle(path.basename(titleFilePath));
         }
-    }, titleFilePathStream);
+    }, isEditable);
+
+    flyd.on((applicationTitle) => {
+        currentWindow.setTitle(path.basename(applicationTitle));
+    }, applicationTitleStream);
 };
 
 module.exports = { ComponentApplicationTitle };
