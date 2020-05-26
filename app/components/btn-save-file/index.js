@@ -10,15 +10,12 @@ const BtnSaveFile = (application, dependantStreams) => {
     const {
         inputJSONStream,
         initialContentStream,
-        titleFilePathStream
+        titleFilePathStream,
+        isEditedStream
     } = dependantStreams;
     const btnSave = document.querySelector("#btnSave");
     const buttonSaveStream = flyd.stream();
     btnSave.addEventListener("click", buttonSaveStream);
-
-    const disableSaveButtonStream = flyd.combine((inputJSON, initialContent) => {
-        return inputJSON() !== initialContent();
-    }, [inputJSONStream, initialContentStream]);
 
     const saveFile = (file, content) => {
         if (!file) {
@@ -43,7 +40,7 @@ const BtnSaveFile = (application, dependantStreams) => {
     flyd.on((disableSaveButton) => {
         btnSave.disabled = disableSaveButton ? false : "disabled";
         currentWindow.setDocumentEdited(disableSaveButton);
-    }, disableSaveButtonStream);
+    }, isEditedStream);
 
     flyd.on(() => {
         saveFile(titleFilePathStream(), inputJSONStream());
