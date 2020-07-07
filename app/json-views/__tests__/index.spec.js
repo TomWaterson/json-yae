@@ -17,4 +17,14 @@ describe("Tree View", () => {
                 <span class="value">world</span>
             </li></ul>`);
     });
+    it("matches template", () => {
+        let data = {
+            foo: {
+                bar: "baz"
+            },
+            hello: "world"
+        };
+
+        expect(toHTML(JSON.stringify(data))).toMatchSnapshot();
+    });
 });

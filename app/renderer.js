@@ -8,7 +8,6 @@ const { ComponentSchemaButtons } = require("./components/schema-buttons/index.js
 const { ComponentSchemaErrors } = require("./components/schema-errors/index.js");
 const { ComponentTabs } = require("./components/tabs/index.js");
 const { FormUpdate } = require("./components/form-update/index.js");
-const { TextArea } = require("./components/text-area/index.js");
 const { BtnLoadSchema } = require("./components/btn-load-schema/index.js");
 const { BtnShowFile } = require("./components/btn-show-file/index.js");
 const { BtnOpenFile } = require("./components/btn-open-file/index.js");
@@ -20,7 +19,7 @@ const mainProcess = remote.require("./main.js");
 const currentWindow = remote.getCurrentWindow();
 // Streams
 const applicationTitleStream = flyd.stream("JSON-YAE");
-const inputJSONStream = flyd.stream();
+const appJSONStream = flyd.stream(JSON.stringify({ hello: "world" }));
 const updateJSONStream = flyd.stream();
 const objPathStream = flyd.stream();
 const listJSONStream = flyd.stream();
@@ -29,48 +28,64 @@ const btnLoadSchemaStream = flyd.stream();
 const schemaJSONStream = flyd.stream(null);
 const titleFilePathStream = flyd.stream(null);
 const initialContentStream = flyd.stream("");
-const htmlStream = flyd.map(toHTML, inputJSONStream);
-const isSchemaValidStream = flyd.map((x) => validator.schema.validateSchema(schemaJSONStream(), x), inputJSONStream);
-const isJSONValidStream = flyd.map((x) => validator.input.validate(x), inputJSONStream);
+const htmlStream = flyd.map(toHTML, appJSONStream);
+const isSchemaValidStream = flyd.map((x) => validator.schema.validateSchema(schemaJSONStream(), x), appJSONStream);
+const isJSONValidStream = flyd.map((x) => validator.input.validate(x), appJSONStream);
 const isEditedStream = flyd.combine((inputJSON, initialContent) => {
     return inputJSON() !== initialContent();
-}, [inputJSONStream, initialContentStream]);
+}, [appJSONStream, initialContentStream]);
 // Components
-ComponentDragAndDrop({ shell }, { inputJSONStream });
+ComponentDragAndDrop({ shell }, {
+    appJSONStream
+});
 ComponentApplicationTitle({ shell, currentWindow }, {
     applicationTitleStream,
     isEditedStream,
     titleFilePathStream
 });
-ComponentDragAndDrop({ shell }, { inputJSONStream });
+ComponentDragAndDrop({ shell }, {
+    appJSONStream
+});
 ComponentSchemaButtons({}, {
-    inputJSONStream,
+    appJSONStream,
     schemaJSONStream,
     isSchemaValidStream,
     isJSONValidStream
 });
-ComponentTabs({}, { inputJSONStream, htmlStream });
-ComponentSchemaErrors({}, { schemaJSONStream, isSchemaValidStream });
+ComponentTabs({}, {
+    appJSONStream,
+    htmlStream
+});
+ComponentSchemaErrors({}, {
+    schemaJSONStream,
+    isSchemaValidStream
+});
 FormUpdate({}, {
     updateJSONStream,
     listJSONStream,
-    inputJSONStream,
+    appJSONStream,
     objPathStream,
     htmlStream
 });
-TextArea({}, { inputJSONStream });
-BtnShowFile({ shell }, { titleFilePathStream });
+BtnShowFile({ shell }, {
+    titleFilePathStream
+});
 BtnOpenFile({ mainProcess }, {
     openFilePressed,
-    inputJSONStream,
+    appJSONStream,
     initialContentStream,
     titleFilePathStream
 });
-BtnLoadSchema({ mainProcess }, { schemaJSONStream, btnLoadSchemaStream });
+BtnLoadSchema({ mainProcess }, {
+    schemaJSONStream,
+    btnLoadSchemaStream
+});
 BtnSaveFile({ currentWindow }, {
-    inputJSONStream,
+    appJSONStream,
     initialContentStream,
     titleFilePathStream,
     isEditedStream
 });
-BtnShowInDefaultApplication({ shell }, { titleFilePathStream });
+BtnShowInDefaultApplication({ shell }, {
+    titleFilePathStream
+});

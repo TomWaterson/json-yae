@@ -1,12 +1,12 @@
 const flyd = require("flyd");
 const fs = require("fs");
-
+const _ = require("../../lib/index.js");
 const ComponentDragAndDrop = (application, dependantStreams) => {
     let {
         shell
     } = application;
     let {
-        inputJSONStream
+        appJSONStream
     } = dependantStreams;
     // Drag helpers
     const getDraggedFile = (event) => event.dataTransfer.items[0];
@@ -25,10 +25,10 @@ const ComponentDragAndDrop = (application, dependantStreams) => {
     const inputSectionDropStream = flyd.stream();
     const inputSectionDragOverStream = flyd.stream();
     const inputSectionDragLeaveStream = flyd.stream();
-    const dragOverFileTypeSupported = flyd.map((event) => {
-        const file = getDraggedFile(event);
-        return isFileTypeSupported(file);
-    }, inputSectionDragOverStream);
+    const dragOverFileTypeSupported = flyd.map(_.pipe([
+        getDraggedFile,
+        isFileTypeSupported
+    ]), inputSectionDragOverStream);
     // TODO: improve readability with fn composition
     const inputSectionDropStreamContent = flyd.map((event) => {
         const file = getDroppedFile(event);
@@ -59,7 +59,7 @@ const ComponentDragAndDrop = (application, dependantStreams) => {
 
     flyd.on((val) => {
         if (val !== null) {
-            inputJSONStream(val);
+            appJSONStream(val);
         } else {
             shell.beep();
         }

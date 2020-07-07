@@ -17,7 +17,8 @@ const ComponentApplicationTitle = (application, dependantStreams) => {
     flyd.on(() => {
         if (titleFilePathStream()) {
             let edited = isEditedStream() ? "(* Edited)" : "";
-            let titleFilePath = (`${titleFilePathStream()} - ${applicationTitleStream()} ${edited}`);
+            let titleFilePath = `${titleFilePathStream()} - ${applicationTitleStream()} ${edited}`;
+
             currentWindow.setRepresentedFilename(titleFilePath);
             currentWindow.setTitle(path.basename(titleFilePath));
         }
