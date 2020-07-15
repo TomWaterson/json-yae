@@ -1,4 +1,3 @@
-const { compose } = require("../lib/index.js");
 const dot = require("dot");
 
 const toList = (json) => {

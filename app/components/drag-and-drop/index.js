@@ -29,16 +29,11 @@ const ComponentDragAndDrop = (application, dependantStreams) => {
         getDraggedFile,
         isFileTypeSupported
     ]), inputSectionDragOverStream);
-    // TODO: improve readability with fn composition
-    const inputSectionDropStreamContent = flyd.map((event) => {
-        const file = getDroppedFile(event);
 
-        if (isFileTypeSupported(file)) {
-            const content = fs.readFileSync(file.path).toString();
-            return content;
-        } else {
-            return null;
-        }
+    const inputSectionDropStreamContent = flyd.map((event) => {
+        const droppedFile = getDroppedFile(event);
+
+        return isFileTypeSupported(droppedFile) ? fs.readFileSync(droppedFile.path).toString() : null;
     }, inputSectionDropStream);
 
     inputSection.addEventListener("dragleave", inputSectionDragLeaveStream);

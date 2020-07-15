@@ -20,9 +20,6 @@ const currentWindow = remote.getCurrentWindow();
 // Streams
 const applicationTitleStream = flyd.stream("JSON-YAE");
 const appJSONStream = flyd.stream(JSON.stringify({ hello: "world" }));
-const updateJSONStream = flyd.stream();
-const objPathStream = flyd.stream();
-const listJSONStream = flyd.stream();
 const openFilePressed = flyd.stream();
 const btnLoadSchemaStream = flyd.stream();
 const schemaJSONStream = flyd.stream(null);
@@ -61,10 +58,7 @@ ComponentSchemaErrors({}, {
     isSchemaValidStream
 });
 FormUpdate({}, {
-    updateJSONStream,
-    listJSONStream,
     appJSONStream,
-    objPathStream,
     htmlStream
 });
 BtnShowFile({ shell }, {

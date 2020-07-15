@@ -9,7 +9,8 @@ describe("Compose", () => {
         let result = pipe(add(7), multiply(3));
         // assert
         expect(typeof result).toBe("function");
-    })
+    });
+
     it("make 'a(b(c))' as 'pipe(b, a)(c)'", () => {
         // arrange
         let add = (a) => (b) => a + b;

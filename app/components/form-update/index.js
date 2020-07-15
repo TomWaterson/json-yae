@@ -1,23 +1,24 @@
 const flyd = require("flyd");
+const filter = require("flyd/module/filter");
 const dot = require("dot");
 const _ = require("../../lib/index.js");
 
 const FormUpdate = (__, dependantStreams) => {
     let {
-        updateJSONStream,
-        listJSONStream,
-        appJSONStream,
-        objPathStream
+        appJSONStream
     } = dependantStreams;
+    // Split click logic, and appJSON. No Need to keep the same when updating DOM.
+    const listJSONClickStream = flyd.stream();
+    const updateJSONClickStream = flyd.stream();
+    const objPathStream = flyd.stream();
 
     const updateJSON = document.querySelector("#update-json");
     const listJSON = document.querySelector("#listJSON");
 
-    updateJSON.addEventListener("click", updateJSONStream);
-    listJSON.addEventListener("click", listJSONStream);
+    updateJSON.addEventListener("click", updateJSONClickStream);
+    listJSON.addEventListener("click", listJSONClickStream);
 
-    let template = `
-    <div class="w-full float-r">
+    let template = `<div class="w-full float-r">
         <div class="block mb-6">
             <div>
                 <label for="select-type" class="block text-gray-500 font-bold text-left mb-1 mb-0 pr-4">Modify Value Type:</label>
@@ -38,8 +39,7 @@ const FormUpdate = (__, dependantStreams) => {
                 <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" id="json-value" type="text" name="json-value" id="json-value" required>
             </div>
         </div>
-    </div>
-    `;
+    </div>`;
 
     let render = dot.template(template);
 
@@ -68,7 +68,7 @@ const FormUpdate = (__, dependantStreams) => {
         let result = _.setValue(jsonCopy, objPathStream(), converted);
 
         appJSONStream(JSON.stringify(result, null, 4)); // update with new object
-    }, updateJSONStream); // update json from click.
+    }, updateJSONClickStream); // update json from click.
 
     let getPathByElement = (ele, result = "") => {
         let parent = ele.parentElement;
@@ -84,41 +84,64 @@ const FormUpdate = (__, dependantStreams) => {
     };
 
     // Side-effects
+    // map over event stream and; 
+    // split out if/else of object path to different streams :)
+    const listJSONPropertyClicks = filter(event => {
+        let el = event.target;
+        let classList = el.classList.value.split(" ");
+        if (classList.includes("property")) {
+            return true;
+        }
+        return false;
+    }, listJSONClickStream);
+
+    const listJSONValueClicks = filter(event => {
+        let el = event.target;
+        let classList = el.classList.value.split(" ");
+        if (classList.includes("value")) {
+            return true;
+        }
+        return false;
+    }, listJSONClickStream);
+
+    const listJSONCollapsibleClicks = filter(event => {
+        let el = event.target;
+        let classList = el.classList.value.split(" ");
+        if (classList.includes("collapsible")) {
+            return true;
+        }
+        return false;
+    }, listJSONClickStream);
+
     flyd.on(event => {
         let el = event.target;
         let parentEl = el.parentElement;
-        let classList = el.classList.value.split(" ");
         let nested = parentEl.querySelector(".nested");
+        if (nested) {
+            if (nested.classList.value.split(" ").includes("hidden")) {
+                nested.classList.remove("hidden");
+            } else {
+                nested.classList.add("hidden");
+            }
+        }
+    }, listJSONCollapsibleClicks);
+
+    flyd.on(console.log, listJSONPropertyClicks);
+    
+    flyd.on(event => {
+        let el = event.target;
+        let parentEl = el.parentElement;
         let listEditor = document.querySelector("#list-editor");
         let listEditorContent = document.querySelector("#list-editor-content");
+        let path = _.compose((s) => s.slice(0, s.length - 1), getPathByElement);
 
-        if (classList.includes("property") || classList.includes("value")) {
-            let getPath = _.compose((s) => s.slice(0, s.length - 1), getPathByElement);
-
-            let objectFromPath = _.path (getPath(el).split(".")) (JSON.parse(appJSONStream()));
-
-            if (objectFromPath === undefined) {
-                // ITS AN OBJECT DEAL WITH SEPARATELY
-            } else {
-                // Show Update Form with property and id
-                objPathStream(getPath(el));
-                listEditor.classList.remove("hidden");
-                listEditorContent.innerHTML = render({
-                    property: parentEl.querySelector(".property").textContent,
-                    value: parentEl.querySelector(".value").textContent
-                });
-            }
-        }
-        else if (classList.includes("collapsible")) {
-            if (nested) {
-                if (nested.classList.value.split(" ").includes("hidden")) {
-                    nested.classList.remove("hidden");
-                } else {
-                    nested.classList.add("hidden");
-                }
-            }
-        }
-    }, listJSONStream);
+        objPathStream(path(el));
+        listEditor.classList.remove("hidden");
+        listEditorContent.innerHTML = render({
+            property: parentEl.querySelector(".property").textContent,
+            value: parentEl.querySelector(".value").textContent
+        });
+    }, listJSONValueClicks);
 };
 
 module.exports = { FormUpdate };
