@@ -8,7 +8,7 @@ const BtnSaveFile = (application, dependantStreams) => {
         mainProcess
     } = application;
     const {
-        inputJSONStream,
+        appJSONStream,
         initialContentStream,
         titleFilePathStream,
         isEditedStream
@@ -23,7 +23,7 @@ const BtnSaveFile = (application, dependantStreams) => {
                 if (!res.canceled) {
                     titleFilePathStream(res.filePath);
                     fs.writeFileSync(res.filePath, content);
-                    inputJSONStream(content);
+                    appJSONStream(content);
                 }
             }).catch(() => {
                 return null;
@@ -43,8 +43,8 @@ const BtnSaveFile = (application, dependantStreams) => {
     }, isEditedStream);
 
     flyd.on(() => {
-        saveFile(titleFilePathStream(), inputJSONStream());
-        initialContentStream(inputJSONStream());
+        saveFile(titleFilePathStream(), appJSONStream());
+        initialContentStream(appJSONStream());
         try {
             currentWindow.setRepresentedFilename(titleFilePathStream());
             currentWindow.setTitle(path.basename(titleFilePathStream()));

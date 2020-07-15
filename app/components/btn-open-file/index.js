@@ -8,7 +8,7 @@ const BtnOpenFile = (application, dependantStreams) => {
 
     const {
         openFilePressed,
-        inputJSONStream,
+        appJSONStream,
         initialContentStream,
         titleFilePathStream
     } = dependantStreams;
@@ -24,7 +24,7 @@ const BtnOpenFile = (application, dependantStreams) => {
                     if (err) {
                         return null;
                     }
-                    inputJSONStream(data);
+                    appJSONStream(data);
                     initialContentStream(data);
                     titleFilePathStream(file);
                 });

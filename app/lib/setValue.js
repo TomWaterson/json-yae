@@ -1,10 +1,10 @@
 const setValue = (object, path, value) => {
-    var fullPath = path.split("."),
-        way = fullPath.slice(),
-        last = way.pop();
+    let fullPath = path.split(".");
+    let way = fullPath.slice();
+    let last = way.pop();
 
-    way.reduce(function (r, a) {
-        return r[a] = r[a] || {};
+    way.reduce(function (result, currentKey) {
+        return result[currentKey] = result[currentKey] || {};
     }, object)[last] = value;
 
     return object;

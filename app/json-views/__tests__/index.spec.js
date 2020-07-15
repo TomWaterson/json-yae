@@ -12,9 +12,15 @@ describe("Tree View", () => {
         };
 
         expect(toHTML(JSON.stringify(json))).not.toBe(null);
-        expect(toHTML(JSON.stringify(json))).toBe(`<ul class="list-tree select-none"><li data-meta="string" class="item ml-6">
-                <span class="property">hello</span>
-                <span class="value">world</span>
-            </li></ul>`);
+    });
+    it("matches template", () => {
+        let data = {
+            foo: {
+                bar: "baz"
+            },
+            hello: "world"
+        };
+
+        expect(toHTML(JSON.stringify(data))).toMatchSnapshot();
     });
 });
