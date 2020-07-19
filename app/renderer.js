@@ -7,7 +7,7 @@ const { ComponentDragAndDrop } = require("./components/drag-and-drop/index.js");
 const { ComponentSchemaButtons } = require("./components/schema-buttons/index.js");
 const { ComponentSchemaErrors } = require("./components/schema-errors/index.js");
 const { ComponentTabs } = require("./components/tabs/index.js");
-const { FormUpdate } = require("./components/form-update/index.js");
+const { FormUpdateValue } = require("./components/form-update-value/index.js");
 const { FormUpdateProperty } = require("./components/form-update-property/index.js");
 const { BtnLoadSchema } = require("./components/btn-load-schema/index.js");
 const { BtnShowFile } = require("./components/btn-show-file/index.js");
@@ -61,7 +61,7 @@ ComponentSchemaErrors({}, {
     schemaJSONStream,
     isSchemaValidStream
 });
-FormUpdate({}, {
+FormUpdateValue({}, {
     appJSONStream,
     listJSONClickStream,
     objPathStream

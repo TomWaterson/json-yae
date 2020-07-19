@@ -3,7 +3,7 @@ const filter = require("flyd/module/filter");
 const dot = require("dot");
 const _ = require("../../lib/index.js");
 
-const FormUpdate = (__, dependantStreams) => {
+const FormUpdateValue = (__, dependantStreams) => {
     let {
         appJSONStream,
         listJSONClickStream,
@@ -119,4 +119,4 @@ const FormUpdate = (__, dependantStreams) => {
     }, updateJSONValueClickStream);
 };
 
-module.exports = { FormUpdate };
+module.exports = { FormUpdateValue };
