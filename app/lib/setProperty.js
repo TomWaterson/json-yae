@@ -9,8 +9,13 @@ const setProperty = (sourceObject, keyPath, replacementKey, result = {}) => {
                 result[key] = sourceObject[key];
             }
         } else {
-            result[key] = {};
-            setProperty(sourceObject[key], keyPath.slice(1), replacementKey, result[key]);
+            if (key == currentKeyToReplace && keyPath.length == 1) {
+                result[replacementKey] = sourceObject[key];
+            } else {
+                result[key] = {};
+                setProperty(sourceObject[key], keyPath.slice(1), replacementKey, result[key]);
+            }
+            
         }
     }
 
