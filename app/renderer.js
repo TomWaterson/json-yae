@@ -7,7 +7,8 @@ const { ComponentDragAndDrop } = require("./components/drag-and-drop/index.js");
 const { ComponentSchemaButtons } = require("./components/schema-buttons/index.js");
 const { ComponentSchemaErrors } = require("./components/schema-errors/index.js");
 const { ComponentTabs } = require("./components/tabs/index.js");
-const { FormUpdate } = require("./components/form-update/index.js");
+const { FormUpdateValue } = require("./components/form-update-value/index.js");
+const { FormUpdateProperty } = require("./components/form-update-property/index.js");
 const { BtnLoadSchema } = require("./components/btn-load-schema/index.js");
 const { BtnShowFile } = require("./components/btn-show-file/index.js");
 const { BtnOpenFile } = require("./components/btn-open-file/index.js");
@@ -31,6 +32,9 @@ const isJSONValidStream = flyd.map((x) => validator.input.validate(x), appJSONSt
 const isEditedStream = flyd.combine((inputJSON, initialContent) => {
     return inputJSON() !== initialContent();
 }, [appJSONStream, initialContentStream]);
+
+const listJSONClickStream = flyd.stream();
+const objPathStream = flyd.stream();
 // Components
 ComponentDragAndDrop({ shell }, {
     appJSONStream
@@ -57,9 +61,15 @@ ComponentSchemaErrors({}, {
     schemaJSONStream,
     isSchemaValidStream
 });
-FormUpdate({}, {
+FormUpdateValue({}, {
     appJSONStream,
-    htmlStream
+    listJSONClickStream,
+    objPathStream
+});
+FormUpdateProperty({}, {
+    appJSONStream,
+    listJSONClickStream,
+    objPathStream
 });
 BtnShowFile({ shell }, {
     titleFilePathStream
