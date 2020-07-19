@@ -5,9 +5,11 @@ const setValue = require("./setValue.js");
 const setProperty = require("./setProperty.js");
 const deepCopy = require("./deepCopy.js");
 const trimEnd = require("./trimEnd.js");
+const getPathByElement = require("./getPathByElement.js");
 
 module.exports = Object.freeze({
     compose,
+    getPathByElement,
     path,
     setValue,
     setProperty,

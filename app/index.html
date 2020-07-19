@@ -19,12 +19,21 @@
                 <button id="btnDefaultApplication" disabled class="flex-initial m-1 btn btn-gray">Show in default application</button>
                 <button id="btnLoadSchema" class="flex-initial m-1 btn btn-gray">Load JSON Schema</button>
             </nav>
-            <form class="hidden mt-2" id="list-editor">
-                <div id="list-editor-content"></div>
+            <!-- Modifies a value in the tree view -->
+            <form class="hidden mt-2" id="form-value-tree-editor">
+                <div id="form-value-tree-editor-content"></div>
                 <div class="block mb-6">
-                    <button id="update-json" class="btn btn-blue" type="submit">Update JSON</button>
+                    <button id="form-value-update-button" class="btn btn-blue" type="submit">Update JSON</button>
                 </div>
             </form>
+            <!-- Modifies a property key in the tree view -->
+            <form class="hidden mt-2" id="form-property-tree-editor">
+                <div id="form-property-tree-editor-content"></div>
+                <div class="block mb-6">
+                    <button id="form-property-update-button" class="btn btn-blue" type="submit">Update JSON</button>
+                </div>
+            </form>
+            <!-- End property form -->
             <div class="bg-white my-2">
                 <nav class="flex flex-col sm:flex-row">
                     <button id="btnListView" class="tab tab--active">List View</button>
