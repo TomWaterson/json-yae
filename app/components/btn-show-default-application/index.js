@@ -1,19 +1,30 @@
 const flyd = require("flyd");
+const { button } = require("hyperaxe");
 
 const BtnShowInDefaultApplication = (application, dependantStreams) => {
+    const templateNav = document.querySelector("#template-nav");
     const { shell } = application;
     const { titleFilePathStream } = dependantStreams;
-    const btnDefaultApplication = document.querySelector("#btnDefaultApplication");
     const buttonDefaultApplicationStream = flyd.stream();
 
-    btnDefaultApplication.addEventListener("click", buttonDefaultApplicationStream);
+    const view = (titleFilePath) => button({
+        className: "flex-initial m-1 btn btn-gray",
+        disabled: titleFilePath ? null : "disabled",
+        id: "btnDefaultApplication",
+        onclick: buttonDefaultApplicationStream
+    }, "Show in default application");
 
+    templateNav.appendChild(view(null));
+    
     flyd.on(() => {
         shell.openItem(titleFilePathStream());
     }, buttonDefaultApplicationStream);
 
     flyd.on((titleFilePath) => {
-        btnDefaultApplication.disabled = titleFilePath ? false : "disabled";
+        templateNav.replaceChild(
+            view(titleFilePath),
+            document.querySelector("#btnDefaultApplication")
+        );
     }, titleFilePathStream);
 };
 
