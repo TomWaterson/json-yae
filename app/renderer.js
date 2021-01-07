@@ -21,8 +21,6 @@ const currentWindow = remote.getCurrentWindow();
 // Streams
 const applicationTitleStream = flyd.stream("JSON-YAE");
 const appJSONStream = flyd.stream(JSON.stringify({ hello: "world" }));
-const openFilePressed = flyd.stream();
-const btnLoadSchemaStream = flyd.stream();
 const schemaJSONStream = flyd.stream(null);
 const titleFilePathStream = flyd.stream(null);
 const initialContentStream = flyd.stream("");
@@ -75,16 +73,14 @@ BtnShowFile({ shell }, {
     titleFilePathStream
 });
 BtnOpenFile({ mainProcess }, {
-    openFilePressed,
     appJSONStream,
     initialContentStream,
     titleFilePathStream
 });
 BtnLoadSchema({ mainProcess }, {
-    schemaJSONStream,
-    btnLoadSchemaStream
+    schemaJSONStream
 });
-BtnSaveFile({ currentWindow }, {
+BtnSaveFile({ mainProcess, currentWindow }, {
     appJSONStream,
     initialContentStream,
     titleFilePathStream,

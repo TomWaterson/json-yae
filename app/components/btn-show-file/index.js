@@ -1,11 +1,18 @@
 const flyd = require("flyd");
-
+const { button } = require("hyperaxe");
 const BtnShowFile = (application, dependantStreams) => {
     const { shell } = application;
     const { titleFilePathStream } = dependantStreams;
-    const btnShow = document.querySelector("#btnShow");
-    const buttonShowStream = flyd.stream();
-    btnShow.addEventListener("click", buttonShowStream);
+    const buttonShowFileStream = flyd.stream();
+    const templateNav = document.querySelector("#template-nav");
+    const view = (titleFilePath) => button({
+        id: "btnShow",
+        disabled: titleFilePath ? null : "disabled",
+        onclick: buttonShowFileStream,
+        className: "flex-initial m-1 btn btn-gray"
+    }, "Show File");
+
+    templateNav.appendChild(view(null));
 
     flyd.on(() => {
         if (!titleFilePathStream()) {
@@ -13,10 +20,13 @@ const BtnShowFile = (application, dependantStreams) => {
         } else {
             shell.showItemInFolder(titleFilePathStream());
         }
-    }, buttonShowStream);
+    }, buttonShowFileStream);
 
     flyd.on((titleFilePath) => {
-        btnShow.disabled = titleFilePath ? false : "disabled";
+        templateNav.replaceChild(
+            view(titleFilePath),
+            document.querySelector("#btnShow")
+        );
     }, titleFilePathStream);
 };
 

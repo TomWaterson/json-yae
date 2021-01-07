@@ -1,5 +1,6 @@
 const flyd = require("flyd");
 const fs = require("fs");
+const { button } = require("hyperaxe");
 
 const BtnOpenFile = (application, dependantStreams) => {
     const {
@@ -7,14 +8,21 @@ const BtnOpenFile = (application, dependantStreams) => {
     } = application;
 
     const {
-        openFilePressed,
         appJSONStream,
         initialContentStream,
         titleFilePathStream
     } = dependantStreams;
 
-    const btnOpen = document.querySelector("#btnOpen");
-    btnOpen.addEventListener("click", openFilePressed);
+    const templateNav = document.querySelector("#template-nav");
+    const openFilePressed = flyd.stream();
+
+    templateNav.appendChild(
+        button({
+            className: "flex-initial m-1 btn btn-gray",
+            id: "btnOpen",
+            onclick: openFilePressed
+        }, "Open File")
+    );
 
     flyd.on(() => {
         mainProcess.getFileFromUser()

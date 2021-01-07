@@ -8,37 +8,14 @@
     </head>
     <body class="h-screen p-2 flex flex-col">
         <header class="w-full">
-            <nav class="menu flex flex-wrap">
-                <div class="flex-initial w-8 self-center ml-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="m-1 text-gray-300 fill-current" viewBox="0 0 20 20"><path d="M7 3H2v14h5V3zm2 0v14h9V3H9zM0 3c0-1.1.9-2 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3zm3 1h3v2H3V4zm0 3h3v2H3V7zm0 3h3v2H3v-2z"/></svg>
-                </div>
-                <!-- TODO architect dynamic menu system -->
-                <button id="btnShow" disabled class="flex-initial m-1 btn btn-gray">Show File</button>
-                <button id="btnOpen" class="flex-initial m-1 btn btn-gray">Open File</button>
-                <button id="btnSave" disabled class="flex-initial m-1 btn btn-gray">Save</button> <!-- TODO new file on save -->
-                <button id="btnDefaultApplication" disabled class="flex-initial m-1 btn btn-gray">Show in default application</button>
-                <button id="btnLoadSchema" class="flex-initial m-1 btn btn-gray">Load JSON Schema</button>
-            </nav>
+            <!-- App menu -->
+            <nav class="menu flex flex-wrap"><template id="template-nav"></template></nav>
             <!-- Modifies a value in the tree view -->
-            <form class="hidden mt-2" id="form-value-tree-editor">
-                <div id="form-value-tree-editor-content"></div>
-                <div class="block mb-6">
-                    <button id="form-value-update-button" class="btn btn-blue" type="submit">Update JSON</button>
-                </div>
-            </form>
+            <template id="template-form-value"></template>
             <!-- Modifies a property key in the tree view -->
-            <form class="hidden mt-2" id="form-property-tree-editor">
-                <div id="form-property-tree-editor-content"></div>
-                <div class="block mb-6">
-                    <button id="form-property-update-button" class="btn btn-blue" type="submit">Update JSON</button>
-                </div>
-            </form>
-            <!-- End property form -->
-            <div class="bg-white my-2">
-                <nav class="flex flex-col sm:flex-row">
-                    <button id="btnListView" class="tab tab--active">List View</button>
-                </nav>
-            </div>
+            <template id="template-form-property"></template>
+            <!-- List View Button -->
+            <template id="template-view-tabs"></template>
             <div id="accordian-schema-errors" class="accordian hidden" role="alert">
                 <h1 class="accordian-title">Please address the following errors according to your schema</h1>
                 <div class="accordian-body">
@@ -74,9 +51,8 @@
                 <div id="listJSON"></div>
             </section>
         </main>
-        <footer>
-            <p>Never gonna give you up</p>
-        </footer>
+        <template id="template-footer"></template>
+        <script>require('./pages/footer');</script>
         <script>require('./renderer');</script>
     </body>
 </html>
